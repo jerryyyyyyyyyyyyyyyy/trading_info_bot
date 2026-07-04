@@ -30,6 +30,22 @@ jobs:
           else echo "label=Evening" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check secrets are present (does not print values)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "TELEGRAM_BOT_TOKEN is EMPTY or missing"
+          else
+            echo "TELEGRAM_BOT_TOKEN is set (length: ${#TELEGRAM_BOT_TOKEN})"
+          fi
+          if [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "TELEGRAM_CHAT_ID is EMPTY or missing"
+          else
+            echo "TELEGRAM_CHAT_ID is set (length: ${#TELEGRAM_CHAT_ID})"
+          fi
+
       - name: Run briefing bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
