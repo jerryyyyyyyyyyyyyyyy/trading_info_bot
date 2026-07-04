@@ -1,0 +1,38 @@
+name: Market Briefing Bot
+
+on:
+  schedule:
+    # All times below are UTC. Taipei = UTC+8.
+    - cron: "0 0 * * *"    # 08:00 Taipei -> Morning
+    - cron: "0 4 * * *"    # 12:00 Taipei -> Noon
+    - cron: "0 12 * * *"   # 20:00 Taipei -> Evening
+  workflow_dispatch: {}     # lets you trigger it manually from the Actions tab to test
+
+jobs:
+  send-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Determine session label from UTC hour
+        id: session
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "00" ]; then echo "label=Morning" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "04" ]; then echo "label=Noon" >> "$GITHUB_OUTPUT"
+          else echo "label=Evening" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run briefing bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BRIEFING_TZ_LABEL: "Taipei"
+        run: python briefing_bot.py "${{ steps.session.outputs.label }}"
