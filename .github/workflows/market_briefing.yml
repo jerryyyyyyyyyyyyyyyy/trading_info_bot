@@ -1,6 +1,8 @@
 name: Market Briefing Bot
 
 on:
+  push :
+    branches : [master]
   schedule:
     # All times below are UTC. Taipei = UTC+8.
     - cron: "0 0 * * *"    # 08:00 Taipei -> Morning
